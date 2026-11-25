@@ -1,0 +1,20 @@
+@startuml c4-context
+!include <C4/C4_Context>
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+title C4 Level 1 - System Context: подсказка категории товара (Ozon Seller)
+
+Person(seller, "Продавец", "Создаёт карточку товара")
+Person(moderator, "Модератор каталога", "Проверяет карточки")
+
+System(suggest, "Система подсказки категории", "Предлагает категорию, фиксирует выбор")
+System_Ext(moderation, "Система модерации каталога", "Проверка и исправление карточек")
+System_Ext(catalog, "Каталог Ozon", "Дерево категорий")
+
+Rel_R(seller, suggest, "Вводит название, описание, фото")
+Rel_U(suggest, seller, "Показывает категорию или топ-3")
+Rel_D(suggest, moderation, "Передаёт карточку с категорией")
+Rel_U(moderation, suggest, "Присылает исход проверки")
+Rel_R(catalog, suggest, "Отдаёт дерево категорий")
+Rel_D(moderator, moderation, "Подтверждает или меняет категорию")
+@enduml

@@ -1,0 +1,38 @@
+@startuml c4-components
+!include <C4/C4_Component>
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+skinparam nodesep 50
+skinparam ranksep 80
+title C4 Level 3 - Components: Category Suggest Service (ML-блок)
+
+Container(card, "Card Service", "Go", "Вызывающий контейнер")
+ContainerDb(fs, "Feature Store", "Redis")
+ContainerDb(reg, "Model Registry", "MLflow + S3")
+
+Container_Boundary(ml, "Category Suggest Service") {
+  Component(api, "gRPC Handler", "FastAPI", "Принимает запрос, отдаёт ответ")
+  Component(prep, "Preprocessor", "Python", "Текст и эмбеддинг фото")
+  Component(fetch, "Feature Fetcher", "Python", "Признаки продавца")
+  Component(router, "Model Version Router", "Python", "Champion или canary 5%")
+  Component(loader, "Model Loader", "Python", "Кэш весов версий")
+  Component(infer, "Inference Engine", "ONNX Runtime", "Вероятности категорий")
+  Component(post, "Top-K Postprocessor", "Python", "Топ-3 по допустимым листьям")
+  Component(log, "Prediction Logger", "Python", "Версия и ответ для разметки")
+}
+
+Rel_D(card, api, "Запрос подсказки", "gRPC")
+Rel_D(api, prep, "Данные карточки")
+Rel_D(api, fetch, "ID продавца")
+Rel_R(api, router, "Запрос версии")
+Rel_D(fetch, fs, "Читает", "Redis")
+Rel_D(router, loader, "Имя версии")
+Rel_D(loader, reg, "Грузит веса", "HTTP")
+Rel_D(prep, infer, "Векторы")
+Rel_D(fetch, infer, "Признаки")
+Rel_D(loader, infer, "Веса")
+Rel_D(infer, post, "Вероятности")
+Rel_L(post, log, "Версия и ответ")
+Rel_U(post, api, "Топ-3 и p1")
+Rel_U(api, card, "Топ-3, p1, версия (результат T4)", "gRPC")
+@enduml

@@ -1,0 +1,41 @@
+@startuml c4-containers
+!include <C4/C4_Container>
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+skinparam nodesep 60
+skinparam ranksep 90
+title C4 Level 2 - Containers: подсказка категории товара (Ozon Seller)
+
+Person(seller, "Продавец")
+System_Ext(moderation, "Система модерации каталога")
+System_Ext(catalog, "Каталог Ozon")
+
+System_Boundary(sys, "Система подсказки категории") {
+  Container(web, "Форма карточки", "SPA, TypeScript", "Ввод данных, показ подсказки")
+  Container(card, "Card Service", "Go, REST", "Сценарий, пороги, запасной путь")
+  Container(ml, "Category Suggest Service", "Python, FastAPI", "ML-блок: признаки, версия, инференс")
+  Container(search, "Category Search", "Elasticsearch", "Запасной поиск по дереву")
+  ContainerDb(fs, "Feature Store", "Redis", "Онлайн-признаки")
+  ContainerDb(reg, "Model Registry", "MLflow + S3", "Версии модели")
+  ContainerDb(db, "Card DB", "PostgreSQL", "Карточки и категории")
+  ContainerQueue(bus, "Event Bus", "Kafka", "События выбора и модерации")
+  ContainerDb(lake, "Data Lake", "S3 + Parquet", "Размеченные примеры")
+  Container(train, "Training Pipeline", "Airflow + PyTorch", "Обучение и публикация")
+}
+
+Rel_D(seller, web, "Заполняет карточку")
+Rel_D(web, card, "Запрос подсказки", "HTTPS")
+Rel_D(card, ml, "Карточка > топ-3", "gRPC")
+Rel_D(card, search, "Запасной запрос", "HTTP")
+Rel_L(card, db, "Сохраняет", "SQL")
+Rel_D(card, bus, "CategoryChosen", "Kafka")
+Lay_R(ml, search)
+Rel_R(card, moderation, "Карточка", "HTTPS")
+Rel_D(ml, fs, "Читает признаки", "Redis")
+Rel_R(ml, reg, "Грузит версию", "HTTP")
+Rel_D(moderation, bus, "ModerationOutcome", "Kafka")
+Rel_D(catalog, search, "Дерево категорий", "batch")
+Rel_D(bus, lake, "Пишет события")
+Rel_D(lake, train, "Датасет")
+Rel_R(train, reg, "Публикует версию")
+@enduml

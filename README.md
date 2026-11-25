@@ -62,13 +62,13 @@ Mermaid не поддерживает BPMN нативно, поэтому пул
 Пересборка картинок: `npx -p @mermaid-js/mermaid-cli mmdc -i diagrams/bpmn.mmd -o diagrams/bpmn.png -s 2 -b white` и `java -jar plantuml.jar -tpng diagrams/c4-*.puml`.
 
 ### BPMN
-![BPMN](diagrams/bpmn.png)
+![BPMN](/bpmn.png)
 
 ### C4 Context
-![C4 Context](diagrams/c4-context.png)
+![C4 Context](/c4-context.png)
 
 ### C4 Containers
-![C4 Containers](diagrams/c4-containers.png)
+![C4 Containers](/c4-containers.png)
 
 ### C4 Components: ML-блок (Category Suggest Service)
-![C4 Components](diagrams/c4-components.png)
+![C4 Components](/c4-components.png)
